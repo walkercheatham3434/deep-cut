@@ -1,0 +1,24 @@
+# Deep Cut daily questions. Runs every day, no computer needed.
+name: deep-cut-daily
+on:
+  schedule:
+    - cron: "0 9 * * *"     # 09:00 UTC, before the next New York day starts
+  workflow_dispatch:         # lets you run it by hand from the GitHub app
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 daily_job.py
+      - name: Commit new daily files
+        run: |
+          git config user.name "deep-cut-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add daily
+          git commit -m "daily questions" || echo "no changes"
+          git push
